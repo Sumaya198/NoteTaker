@@ -7,62 +7,45 @@ const PORT = process.env.PORT || 5000;
 
 let app = express();
 
-//Server set up and static files
-//bodyParser.urlencoded({extended: false})
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
 const readFileAsynchrously = util.promisify(fs.readFile);
-const writeFileAsynchronously = util.promisify(fs.writeFile);
 let notes = [];
-
-// // app.use('/public/assets/js/index', express.static(path.resolve(__dirname, 'public/assets/js/index')));
-
-
-
 
 
 app.get("/api/notes", (req, res) => {
-  
    readingTheDbFile().then((data) => {
-    console.log("get request", data);
     res.json(JSON.parse(data));
   });
-  
 });
 
 
 app.post("/api/notes", (req, res) => {
-  
-  readingTheDbFile();
-  let id;
+  readingTheDbFile()
   let newNotes = req.body;
   notes.push(newNotes);
   console.log(JSON.stringify(notes), "pushed into db json file");
-
   fs.writeFile(
     path.join(__dirname, "/db/db.json"),
     JSON.stringify(notes),
-    function (data) {
+    function (notes) {
       return res.json(notes);
     }
   );
 });
 
-app.get("/api/notes/:id", (req, res) => {
-    res.json(notes[req.params.id]);
-});
 
 app.delete("/api/notes/:id", function (req, res) {
-    // const deleteNotes = notes.filter(note => note.id !== parseInt(req.params.id));
-    // fs.writeFile(path.join(__dirname, "/db/db.json"), deleteNotes);
-    // notes =  deleteNotes;
-    // res.json(true);
-
+    const deleteNote = req.params.id;
+    notes.splice(deleteNote, 1);
+    fs.writeFileSync("./db/db.json", JSON.stringify(notes), function (err) {
+        if (err) 
+            throw err
+        });
+    res.json(true)
 });
-
-
 
 
 
@@ -77,9 +60,9 @@ app.get("/notes", (req, res) => {
     res.sendFile(path.join(__dirname, "/public/index.html"));
   });
   
-  // app.get("*", (req, res) => {
-  //   res.sendFile(path.join(__dirname, "/public/index.html"));
-  // });
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "/public/index.html"));
+  });
 
   function readingTheDbFile() {
   
