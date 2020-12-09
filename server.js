@@ -12,28 +12,51 @@ app.use(express.static("public"));
 
 const readFileAsynchrously = util.promisify(fs.readFile);
 //const writeFileAsynchrously = util.promisify(fs.readFile);
+
+//in the get request set up the notes variable for the current note i.e notes = res.j
 let notes = [];
+let id = 0;
 
 
 app.get("/api/notes", (req, res) => {
    readingTheDbFile().then((data) => {
-    res.json(JSON.parse(data));
+     notes = JSON.parse(data)
+    res.json(notes);
   });
 });
 
 
 app.post("/api/notes", (req, res) => {
-  readingTheDbFile()
-  let newNotes = req.body;
-  notes.push(newNotes);
-  console.log(JSON.stringify(notes), "pushed into db json file");
-  fs.writeFile(
-    path.join(__dirname, "/db/db.json"),
-    JSON.stringify(notes),
-    function (notes) {
-      return res.json(notes);
-    }
-  );
+  
+  readingTheDbFile().then((array) => {
+    //the function above is reading what is in the db.json file
+    //I want to check the 
+    
+///make ids consistent 
+    
+    let newNotes = {
+      id: id++,
+      title: req.body.title,
+      text: req.body.text,
+    };
+    //we want to loop over each object in the array
+    // for (i = 0; i < array.length; i++){
+    //   let firstId = array[i].id
+    //   console.log("first Id", firstId)
+    // }
+
+    /// this code deletes existing data when server is reset
+    
+    notes.push(newNotes);
+    console.log(JSON.stringify(notes), "pushed into db json file");
+    fs.writeFile(
+      path.join(__dirname, "/db/db.json"),
+      JSON.stringify(notes),
+      function (notes) {
+        return res.json(notes);
+      }
+    );
+  })
 });
 
 
