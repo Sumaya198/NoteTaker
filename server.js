@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const util = require("util");
-const bodyParser = require("body-parser");
 const PORT = process.env.PORT || 5000;
 
 let app = express();
@@ -12,6 +11,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const readFileAsynchrously = util.promisify(fs.readFile);
+//const writeFileAsynchrously = util.promisify(fs.readFile);
 let notes = [];
 
 
@@ -47,10 +47,6 @@ app.delete("/api/notes/:id", function (req, res) {
     res.json(true)
 });
 
-
-
-
-
 // //routing the code to map the requests from simple handlers depending on the url
 app.get("/notes", (req, res) => {
     res.sendFile(path.join(__dirname, "/public/notes.html"));
@@ -65,10 +61,11 @@ app.get("/notes", (req, res) => {
   });
 
   function readingTheDbFile() {
-  
     return readFileAsynchrously(path.join(__dirname, "/db/db.json"), "utf8");
   }
-
+  // function writingTheDbFile() {
+  //   return writeFileAsynchrously(path.join(__dirname, "/db/db.json"))
+  // }
 
 app.listen(PORT, function () {
   console.log("Listening at port ", +PORT);
