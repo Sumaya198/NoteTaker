@@ -10,4 +10,4 @@ No testing required
 # Deploying the App
 
 This application is deployed onto heroku as the server side code can not be deployed onto GitHub pages.
-Deployed link https://note-taker-sumaya.herokuapp.com
+Deployed link https://note-taker-sumaya.herokuapp.com/notes.html
