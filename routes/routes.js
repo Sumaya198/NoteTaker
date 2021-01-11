@@ -1,51 +1,46 @@
-const path = require('path');
-const fs = require('fs');
-
-const Idnotes = () => noteId++;
+const path = require("path");
+const fs = require("fs");
 
 module.exports = function (app) {
+  let notes;
 
-    app.get("/api/notes", function (req, res) {
-        let notes = readingDbFile();
-        res.json(notes)
-    })
+  app.get("/api/notes", function (req, res) {
+    return res.json(notes);
+  });
 
-    app.post('/api/notes', function (req, res) {
-        let notes = readingDbFile();
-        let newNote = req.body;
-        let lastNoteID = lastId();
-        let Idnotes = lastNoteID + 1
-        newNote.id = Idnotes;
-        notes.push(newNote);
-        writingDbFile(notes);
-        return res.json(notes)
-    })
+  app.post("/api/notes", function (req, res) {
+    let newNotes = req.body;
+    notes.push(newNotes);
+    res.json(newNotes);
+    notesId();
+    fs.writeFileSync("./db/db.json", JSON.stringify(notes), function (err) {
+      if (err) throw err;
+    });
+  });
 
-    app.delete('/api/notes/:id', function (req, res) {
-        let notes = readingDbFile();
-        const noteId = req.params.id;
-        const newNotes = notes.filter((note) => note.id != noteId);
-        writingDbFile(newNotes);
-        res.send(newNotes);
-    })
+  app.delete("/api/notes/:id", function (req, res) {
+    let deleteID = req.params.id;
+    let deletedNote = notes.splice(deleteID, 1);
+    console.log("note deleted", deletedNote);
+    notesId();
+    fs.writeFileSync("./db/db.json", JSON.stringify(notes), function (err) {
+      if (err) throw err;
+    });
+    res.json({ deletion: "note deleted successfully" });
+  });
 
-    const readingDbFile = () => {
-        const readingTheNotes = JSON.parse(fs.readFileSync(path.join(__dirname, '../db/db.json')))
-        return readingTheNotes;
+  const readNotes = fs.readFileSync("./db/db.json", "UTF-8");
+
+  if (readNotes) {
+    const previousNotes = JSON.parse(readNotes);
+    notes = previousNotes;
+  } else {
+    notes = [];
+  }
+
+  function notesId() {
+    for (i = 0; i < notes.length; i++) {
+      notes[i].id = i;
     }
-    const writingDbFile = (noteData) => {
-        fs.writeFileSync(path.join(__dirname, '../db/db.json'), JSON.stringify(noteData), (err) => {
-            if (err) return ({ err });
-        })
-    }
-
-    function lastId(){
-        let notes = readingDbFile();
-        if (notes !== [0]){
-            return 0
-        }else{
-           return notes[notes.length - 1].id 
-        }
-    }
-    
-}
+  }
+};
